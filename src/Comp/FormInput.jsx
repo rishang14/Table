@@ -1,6 +1,6 @@
 import { data } from "autoprefixer";
 import { useState, useEffect } from "react";
-const InputComp = ({ setData ,tabledata}) => {
+const InputComp = ({ setData, tabledata }) => {
   let initialValues = {
     firstname: "",
     lastName: "",
@@ -11,21 +11,27 @@ const InputComp = ({ setData ,tabledata}) => {
   let key = "usersDetails";
   const [fieldValue, setFieldValue] = useState(initialValues);
   const [validateError, setValidateError] = useState({});
-  let value = JSON.stringify(fieldValue);
-  const handleChange = (e) => {
-    setFieldValue({ ...fieldValue, [e.target.name]: e.target.value });
-  };
-  useEffect(() => { 
+  useEffect(() => {
     // retriving data
+
     const details = localStorage.getItem(key);
     // if data
-    if (details && fieldValue !== initialValues) {
-      const data = JSON.parse(details);
-      setData([...tabledata, { data }]);
+    if (details) { 
+      try{
+        const data = JSON.parse(details);
+        setData(data);
+
+      }catch(error){
+       console.log(error)
+      }
     } else {
       console.log("No data Found");
     }
-  }, [fieldValue]);
+  }, [key,setData]);
+
+  const handleChange = (e) => {
+    setFieldValue({ ...fieldValue, [e.target.name]: e.target.value });
+  }; 
 
 
   const validateForm = () => {
@@ -44,10 +50,7 @@ const InputComp = ({ setData ,tabledata}) => {
     }
     if (
       !isNaN(fieldValue.MoblieNo) == false ||
-      fieldValue.MoblieNo.length < 10 ||
-      (!isNaN(fieldValue.MoblieNo) == true &&
-        fieldValue.MoblieNo.length < 10) ||
-      (!isNaN(fieldValue.MoblieNo) == true && fieldValue.MoblieNo.length > 10)
+      fieldValue.MoblieNo.length != 10
     ) {
       error.MoblieNo = "Please enter valid number";
     }
@@ -57,13 +60,20 @@ const InputComp = ({ setData ,tabledata}) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const error = validateForm();
-    setValidateError(error); 
-    //if (key) return 
+    setValidateError(error);
+    //if (key) return
     if (Object.keys(error).length > 0) {
       return;
     }
-
-    localStorage.setItem(key, value);
+    //data with id
+    const newDataWithId = { ...fieldValue, id: Date.now() };
+    //passing it to table
+    const updateItem = [...tabledata, newDataWithId];
+    //setting up with table
+    setData(updateItem);
+    //saving the data in localStorage
+    localStorage.setItem(key, JSON.stringify(updateItem));
+    //setting input values to empty
     setFieldValue(initialValues);
   };
 
