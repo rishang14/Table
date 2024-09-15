@@ -1,6 +1,6 @@
-import { useState } from "react";
-//@ts-ignore
-const InputComp = () => {
+import { data } from "autoprefixer";
+import { useState, useEffect } from "react";
+const InputComp = ({ setData ,tabledata}) => {
   let initialValues = {
     firstname: "",
     lastName: "",
@@ -8,19 +8,32 @@ const InputComp = () => {
     MoblieNo: "",
     Dept: "",
   };
+  let key = "usersDetails";
   const [fieldValue, setFieldValue] = useState(initialValues);
   const [validateError, setValidateError] = useState({});
-
+  let value = JSON.stringify(fieldValue);
   const handleChange = (e) => {
     setFieldValue({ ...fieldValue, [e.target.name]: e.target.value });
   };
+  useEffect(() => { 
+    // retriving data
+    const details = localStorage.getItem(key);
+    // if data
+    if (details && fieldValue !== initialValues) {
+      const data = JSON.parse(details);
+      setData([...tabledata, { data }]);
+    } else {
+      console.log("No data Found");
+    }
+  }, [fieldValue]);
+
 
   const validateForm = () => {
     let error = {};
     if (!isNaN(fieldValue.firstname) == true || fieldValue.firstname == " ") {
       error.fistname = "Please Enter First Name";
     }
-    if (!isNaN(fieldValue.firstname) == true || fieldValue.lastName == " ") {
+    if (!isNaN(fieldValue.lastName) == true || fieldValue.lastName == " ") {
       error.lastName = "Please Enter Last Name";
     }
     if (!isNaN(fieldValue.Dept) == true || fieldValue.Dept == " ") {
@@ -30,8 +43,11 @@ const InputComp = () => {
       error.age = "Age is not valid";
     }
     if (
-      !isNaN(fieldValue.MoblieNo) == false &&
-      fieldValue.MoblieNo.length < 10 
+      !isNaN(fieldValue.MoblieNo) == false ||
+      fieldValue.MoblieNo.length < 10 ||
+      (!isNaN(fieldValue.MoblieNo) == true &&
+        fieldValue.MoblieNo.length < 10) ||
+      (!isNaN(fieldValue.MoblieNo) == true && fieldValue.MoblieNo.length > 10)
     ) {
       error.MoblieNo = "Please enter valid number";
     }
@@ -41,13 +57,14 @@ const InputComp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const error = validateForm();
-    console.log(error);
-    setValidateError(error);
+    setValidateError(error); 
+    //if (key) return 
     if (Object.keys(error).length > 0) {
       return;
-    } 
-      console.log("from Submitted", fieldValue);
-      setFieldValue(initialValues);
+    }
+
+    localStorage.setItem(key, value);
+    setFieldValue(initialValues);
   };
 
   return (
@@ -72,10 +89,10 @@ const InputComp = () => {
             <input
               name="lastName"
               className="p-2  w-full"
-              value={fieldValue.lastName}
-              onChange={handleChange}
               required
               placeholder="Enter Last name"
+              value={fieldValue.lastName}
+              onChange={handleChange}
             />
             {validateError?.name && (
               <span className="text-red-700">{validateError.name}</span>
@@ -83,14 +100,14 @@ const InputComp = () => {
           </div>
           <div className="p-2  w-full">
             <input
+              className="p-2  w-full"
               name="Age"
               type="number"
+              placeholder="Age"
               min={0}
               required
               value={fieldValue.Age}
               onChange={handleChange}
-              className="p-2  w-full"
-              placeholder="Age"
             />
             {validateError?.age && (
               <span className="text-red-700">{validateError.age}</span>
@@ -101,9 +118,9 @@ const InputComp = () => {
               name="MoblieNo"
               className="p-2  w-full"
               required
+              placeholder="PhoneNumber"
               value={fieldValue.MoblieNo}
               onChange={handleChange}
-              placeholder="PhoneNumber"
             />
             {validateError?.MoblieNo && (
               <span className="text-red-700">{validateError.MoblieNo}</span>
@@ -114,9 +131,9 @@ const InputComp = () => {
               name="Dept"
               required
               className="p-2  w-full"
+              placeholder="Department"
               value={fieldValue.Dept}
               onChange={handleChange}
-              placeholder="Department"
             />
             {validateError?.Dept && (
               <span className="text-red-700">{validateError.Dept}</span>

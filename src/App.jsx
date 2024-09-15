@@ -1,10 +1,10 @@
 import React from 'react'; 
-import InputComp from './Comp/FormInput';
+import Table from './Comp/Table';
 
 const App = () => {
   return (
   <>
-  <InputComp/>
+  <Table/>
   </>
   )
 }
