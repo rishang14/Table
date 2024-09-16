@@ -4,6 +4,8 @@ import InputComp from "./FormInput";
 const Table = () => {
   const [tableData, setTableData] = useState([]);
   const [editableRow, setEditableRow] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [page, setPage] = useState(1);
   let keys;
   if (tableData.length > 0) {
     keys = Object.keys(tableData[0]).filter((key) => key !== "id");
@@ -41,7 +43,7 @@ const Table = () => {
       //return previous ones
       return item;
     });
- 
+
     //set in tabledate and localestroage
     setTableData(newdata);
     localStorage.setItem("usersDetails", JSON.stringify(newdata));
@@ -58,22 +60,40 @@ const Table = () => {
 
   return (
     <>
-      <InputComp setData={setTableData} tabledata={tableData} />
-      <div className="w-[80%] m-auto p-[4]">
+      <div>
+        <button
+          className="p-2 rounded-md border-none bg-zinc-500 hover:bg-zinc-300"
+          onClick={() => setShowForm((prev) => !prev)}
+        >
+          Enter Details
+        </button>
+      </div>
+      <div
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[99999]"
+        style={{ display: showForm ? "block" : "none" }}
+      >
+        <InputComp
+          setData={setTableData}
+          tabledata={tableData}
+          showForm={setShowForm}
+        />
+      </div>
+
+      <div className="w-[80%] relative   m-auto border bg-slate-100">
         {tableData.length > 0 && (
           <table
-            className="w-[100%]  "
+            className="w-[100%] p-4 relative"
             style={{ borderCollapse: "collapse", border: "1px solid black" }}
           >
             <thead>
-              <tr className=" border-collapse ">
+              <tr className=" border-collapse  ">
                 <th style={{ border: "1px solid black", width: "50px" }}>
                   No.
                 </th>
                 {keys.map((keys) => {
                   return (
                     <th
-                      className="w-[auto] border-collapse border  border-black"
+                      className="w-[auto] border-collapse border   border-black"
                       key={keys}
                     >
                       {keys}
@@ -83,7 +103,7 @@ const Table = () => {
               </tr>
             </thead>
             <tbody>
-              {tableData.map((data, index) => {
+              {tableData.slice(page * 5 - 5, page * 5).map((data, index) => {
                 return (
                   <tr key={index}>
                     <td className="p-2  text-center border-collapse border border-black">
@@ -121,9 +141,10 @@ const Table = () => {
                             </>
                           ) : editableRow == data.id ? (
                             <>
-                              <input 
-                              name={key}
+                              <input
+                                name={key}
                                 className="p-2  w-full"
+                                style={{ border: "1px solid #ccc" }}
                                 value={data[key]}
                                 onChange={(e) => handleEditChange(e, data.id)}
                               />
@@ -140,6 +161,25 @@ const Table = () => {
             </tbody>
           </table>
         )}
+        <div className="absolute right-0 p-2 m-2">
+          {page > 1 && (
+            <button
+              className="p-2 border border-b-black rounded-lg gap-2 mr-[10px] bg-slate-200 hover:bg-slate-100"
+              onClick={() => setPage((prev) => prev - 1)}
+            >
+              {" "}
+              Prev Page
+            </button>
+          )}
+          {tableData.length > 5 && (
+            <button
+              className="p-2 border border-b-black rounded-lg gap-2 mr-[10px]  bg-slate-200  hover:bg-slate-100"
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              Next Page
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 import { data } from "autoprefixer";
 import { useState, useEffect } from "react";
-const InputComp = ({ setData, tabledata }) => {
+const InputComp = ({ setData, tabledata, showForm }) => {
   let initialValues = {
     firstname: "",
     lastName: "",
@@ -16,23 +16,21 @@ const InputComp = ({ setData, tabledata }) => {
 
     const details = localStorage.getItem(key);
     // if data
-    if (details) { 
-      try{
+    if (details) {
+      try {
         const data = JSON.parse(details);
         setData(data);
-
-      }catch(error){
-       console.log(error)
+      } catch (error) {
+        console.log(error);
       }
     } else {
       console.log("No data Found");
     }
-  }, [key,setData]);
+  }, [key, setData]);
 
   const handleChange = (e) => {
     setFieldValue({ ...fieldValue, [e.target.name]: e.target.value });
-  }; 
-
+  };
 
   const validateForm = () => {
     let error = {};
@@ -75,17 +73,29 @@ const InputComp = ({ setData, tabledata }) => {
     localStorage.setItem(key, JSON.stringify(updateItem));
     //setting input values to empty
     setFieldValue(initialValues);
+    //hide form
+    showForm((prev) => !prev);
   };
 
   return (
     <>
-      <div className="p-4  m-2 flex flex-col rounded-md  border  w-[500px]">
+      <div className="p-4  m-2 flex flex-col rounded-md  border  w-[500px] bg-gray-200">
         <h1 className="font-bold text-center"> Enter Details</h1>
+        <span
+          className="absolute right-[30px] top-[15px] cursor-pointer text-2xl"
+          onClick={() => {
+            showForm((prev) => !prev);
+            setFieldValue(initialValues);
+          }}
+        >
+          x
+        </span>
         <form onSubmit={handleSubmit} className="flex  flex-col w-full">
           <div className="p-2  w-full">
             <input
               name="firstname"
               className="p-2  w-full"
+              style={{ border: "1px solid #ccc" }}
               value={fieldValue.firstname}
               onChange={handleChange}
               required
@@ -99,6 +109,7 @@ const InputComp = ({ setData, tabledata }) => {
             <input
               name="lastName"
               className="p-2  w-full"
+              style={{ border: "1px solid #ccc" }}
               required
               placeholder="Enter Last name"
               value={fieldValue.lastName}
@@ -109,8 +120,10 @@ const InputComp = ({ setData, tabledata }) => {
             )}
           </div>
           <div className="p-2  w-full">
+            <label>Enter Age</label>
             <input
               className="p-2  w-full"
+              style={{ border: "1px solid #ccc" }}
               name="Age"
               type="number"
               placeholder="Age"
@@ -127,6 +140,7 @@ const InputComp = ({ setData, tabledata }) => {
             <input
               name="MoblieNo"
               className="p-2  w-full"
+              style={{ border: "1px solid #ccc" }}
               required
               placeholder="PhoneNumber"
               value={fieldValue.MoblieNo}
@@ -139,6 +153,7 @@ const InputComp = ({ setData, tabledata }) => {
           <div className="p-2  w-full">
             <input
               name="Dept"
+              style={{ border: "1px solid #ccc" }}
               required
               className="p-2  w-full"
               placeholder="Department"
@@ -150,7 +165,10 @@ const InputComp = ({ setData, tabledata }) => {
             )}
           </div>
           <div className="p-2  mx-auto ">
-            <button className="p-2  bg-slate-200 m-2" type="submit">
+            <button
+              className="p-2  bg-slate-500 m-2 rounded-lg hover:bg-slate-200"
+              type="submit"
+            >
               Submit
             </button>
           </div>
