@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import InputComp from "./FormInput";
-import { data } from "autoprefixer";
 
 const Table = () => {
   const [tableData, setTableData] = useState([]);
@@ -9,15 +8,12 @@ const Table = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortKey, setSortKey] = useState(null);
   const [page, setPage] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
   let keys;
   if (tableData.length > 0) {
     keys = Object.keys(tableData[0]).filter((key) => key !== "id");
     keys.push("Action");
   }
-
-  useEffect(() => {
-    JSON.parse(localStorage.getItem("usersDetails"));
-  }, [tableData]);
 
   //HELPER FUNCTIONS
   function filterLogic(item, id) {
@@ -43,6 +39,20 @@ const Table = () => {
         }
       }
     };
+  }
+
+  function handleFilterLogic(searchValue) {
+    return (arr) => { 
+      for (let key in arr) { 
+      // here getting all the keys
+      //looping through each values 
+      //converting in string and lowercase 
+      //checking it contains searchvalue or not 
+      return arr[key].toString().toLowerCase().
+      includes(searchValue.toLowerCase()) 
+      ? true : false 
+      }
+    }                        
   }
 
   const handleDelete = (id) => {
@@ -98,6 +108,9 @@ const Table = () => {
     setTableData(newData);
   };
 
+  const filterTableData = tableData.filter(handleFilterLogic(searchValue));
+  console.log(filterTableData);
+
   return (
     <>
       <div className="p-2  m-4 w-[full] h-[full]">
@@ -138,7 +151,13 @@ const Table = () => {
           />
         </div>
 
-        <div className="w-[80%]  relative mt-[20px]   mx-auto border bg-slate-100">
+        <div className="w-[80%]  relative mt-[10px]   mx-auto border bg-slate-100">
+          <input
+            className="p-2 mb-[5px] w-[250px] border rounden-md border-b-slate-500"
+            placeholder="search data"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
           {tableData.length > 0 && (
             <table
               className="w-[100%] p-4 relative"
@@ -172,18 +191,18 @@ const Table = () => {
                 </tr>
               </thead>
               <tbody>
-                {tableData.slice(page * 5 - 5, page * 5).map((data, index) => {
+                {filterTableData.slice(page * 5 - 5, page * 5).map((data, index) => {
                   return (
                     <tr key={index}>
                       <td className="p-2  text-center border-collapse border border-black">
                         {index + 1}
                       </td>
-                      {keys.map((key,idx) => {
+                      {keys.map((key, idx) => {
                         return (
-                          <td 
-                          key={`${data.id}-${idx}`}
+                          <td
+                            key={`${data.id}-${idx}`}
                             className="p-2 w-auto text-center border-collapse border border-black"
-                            style={{ width: key == "Action" && "200px" }} 
+                            style={{ width: key == "Action" && "200px" }}
                           >
                             {key == "Action" ? (
                               <>
