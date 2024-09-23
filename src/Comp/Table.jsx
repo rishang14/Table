@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import InputComp from "./FormInput";
+import { data } from "autoprefixer";
 
 const Table = () => {
   const [tableData, setTableData] = useState([]);
   const [editableRow, setEditableRow] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortKey, setSortKey] = useState(null);
   const [page, setPage] = useState(1);
   let keys;
   if (tableData.length > 0) {
@@ -12,9 +15,34 @@ const Table = () => {
     keys.push("Action");
   }
 
-  //HELPER FUNCTION
+  useEffect(() => {
+    JSON.parse(localStorage.getItem("usersDetails"));
+  }, [tableData]);
+
+  //HELPER FUNCTIONS
   function filterLogic(item, id) {
     return item.id !== id;
+  }
+
+  function sortByKey(key) {
+    return function (a, b) {
+      //check if key Value is  string
+      if (typeof a[key] === "string") {
+        {
+          return sortOrder === "asc"
+            ? a[key].localeCompare(b[key])
+            : b[key].localeCompare(a[key]);
+        }
+      }
+      //check if key value is number
+      if (typeof a[key] === "number") {
+        if (sortOrder === "asc") {
+          return a[key] > b[key] ? 1 : -1;
+        } else {
+          return b[key] > a[key] ? 1 : -1;
+        }
+      }
+    };
   }
 
   const handleDelete = (id) => {
@@ -56,6 +84,18 @@ const Table = () => {
     setTableData(data);
     //make editable null so it not show
     setEditableRow("");
+  };
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+    const newData = [...tableData].sort(sortByKey(key));
+    localStorage.setItem("usersDetails", JSON.stringify(newData));
+    setTableData(newData);
   };
 
   return (
@@ -115,7 +155,17 @@ const Table = () => {
                         className="w-[auto] border-collapse border   border-black"
                         key={keys}
                       >
-                        {keys}
+                        {keys}{" "}
+                        {keys !== "Action" && (
+                          <span
+                            className="p-1 cursor-pointer"
+                            title="Sort"
+                            onClick={() => handleSort(keys)}
+                          >
+                            {" "}
+                            ↕️{" "}
+                          </span>
+                        )}
                       </th>
                     );
                   })}
@@ -128,11 +178,12 @@ const Table = () => {
                       <td className="p-2  text-center border-collapse border border-black">
                         {index + 1}
                       </td>
-                      {keys.map((key) => {
+                      {keys.map((key,idx) => {
                         return (
-                          <td
+                          <td 
+                          key={`${data.id}-${idx}`}
                             className="p-2 w-auto text-center border-collapse border border-black"
-                            style={{ width: key == "Action" && "200px" }}
+                            style={{ width: key == "Action" && "200px" }} 
                           >
                             {key == "Action" ? (
                               <>
